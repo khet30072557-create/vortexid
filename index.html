@@ -3,81 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <title>VortexID</title>
+
+<style>
+body{
+  font-family:sans-serif;
+  background:#111;
+  color:#fff;
+  text-align:center;
+}
+
+.card{
+  background:#222;
+  margin:10px;
+  padding:15px;
+  border-radius:10px;
+}
+
+img{
+  width:200px;
+  border-radius:10px;
+}
+
+button{
+  margin:5px;
+  padding:5px 10px;
+  border:none;
+  border-radius:5px;
+  background:red;
+  color:white;
+  cursor:pointer;
+}
+</style>
+
 </head>
 <body>
 
-<h1>VortexID 🔐</h1>
+<h1>🔥 VortexID Store</h1>
 
-<!-- login -->
-<input id="user" placeholder="username">
-<input id="pass" placeholder="password">
-<button onclick="login()">Login</button>
+<input id="title" placeholder="ชื่อไอดี"><br>
+<input id="price" placeholder="ราคา"><br>
+<input id="contact" placeholder="ติดต่อ"><br>
+<input id="image" placeholder="ลิงก์รูป"><br>
+
+<button onclick="add()">เพิ่มสินค้า</button>
 
 <hr>
 
-<!-- add -->
-<input id="title" placeholder="ชื่อ">
-<input id="price" placeholder="ราคา">
-<input id="contact" placeholder="ติดต่อ">
-<button onclick="add()">เพิ่ม</button>
-
-<ul id="list"></ul>
+<div id="list"></div>
 
 <script>
 const API = 'https://vortexid.onrender.com';
-let TOKEN = '';
 
-// login
-async function login(){
-  const username = user.value;
-  const password = pass.value;
-
-  const res = await fetch(API+'/login',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({username,password})
-  });
-
-  const data = await res.json();
-  TOKEN = data.token;
-  alert('Login สำเร็จ');
-}
-
-// load
 async function load(){
   const res = await fetch(API+'/accounts');
   const data = await res.json();
 
   list.innerHTML = data.map(d=>`
-    <li>
-      ${d.title} - ${d.price}
+    <div class="card">
+      <img src="${d.image}" onerror="this.src='https://via.placeholder.com/200'"><br>
+      <h3>${d.title}</h3>
+      <p>${d.price} บาท</p>
+      <p>${d.contact}</p>
       <button onclick="del('${d._id}')">ลบ</button>
-    </li>
+    </div>
   `).join('');
 }
 
-// add
 async function add(){
   await fetch(API+'/accounts',{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':TOKEN
-    },
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       title:title.value,
       price:price.value,
-      contact:contact.value
+      contact:contact.value,
+      image:image.value
     })
   });
   load();
 }
 
-// delete
 async function del(id){
   await fetch(API+'/accounts/'+id,{
-    method:'DELETE',
-    headers:{'Authorization':TOKEN}
+    method:'DELETE'
   });
   load();
 }
