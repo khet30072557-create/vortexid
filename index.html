@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VortexID</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      margin: auto;
+      margin-top: 20px;
+    }
+
+    input {
+      width: 90%;
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 8px 15px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #22c55e;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    .item {
+      background: #334155;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .delete {
+      background: red;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🛒 VortexID Shop</h1>
+
+<div class="box">
+  <h3>เพิ่มสินค้า</h3>
+  <input id="title" placeholder="ชื่อไอดี"><br>
+  <input id="price" placeholder="ราคา"><br>
+  <input id="contact" placeholder="ติดต่อ"><br>
+  <button onclick="add()">เพิ่ม</button>
+</div>
+
+<h2>📦 รายการสินค้า</h2>
+<div id="list"></div>
+
+<script>
+async function load(){
+  const res = await fetch('http://localhost:3000/accounts');
+  const data = await res.json();
+
+  let html = '';
+  data.forEach(d=>{
+    html += `
+      <div class="item">
+        <b>${d.title}</b><br>
+        💰 ${d.price} บาท<br>
+        📞 ${d.contact}
+        <br>
+        <button class="delete" onclick="del('${d._id}')">ลบ</button>
+      </div>
+    `;
+  });
+
+  document.getElementById('list').innerHTML = html;
+}
+
+async function add(){
+  const title = document.getElementById('title').value;
+  const price = document.getElementById('price').value;
+  const contact = document.getElementById('contact').value;
+
+  await fetch('http://localhost:3000/accounts',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({title,price,contact})
+  });
+
+  document.getElementById('title').value = '';
+  document.getElementById('price').value = '';
+  document.getElementById('contact').value = '';
+
+  load();
+}
+
+async function del(id){
+  await fetch('http://localhost:3000/accounts/' + id, {
+    method:'DELETE'
+  });
+  load();
+}
+
+load();
+</script>
+
+</body>
+</html>
+
